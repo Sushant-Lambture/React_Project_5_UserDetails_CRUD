@@ -6,6 +6,31 @@ function Registration() {
 
     const [show, setShow] = useState(true);
     const [allData, setAllData] = useState([{}]);
+    const [buttonState, setButtonState] = useState(true);
+    const [index, setIndex] = useState(0);
+    const [input,setInput]= useState({
+        Fullname: "",
+        Email: "",
+        Password:"",
+        Mobilenumber: ""
+    })
+
+    function getInputData(e){
+        let target= e.target;
+        let value= target.value;
+        let key=target.name;
+        // console.log(key," ",value)
+        return (
+            setInput((old)=>{
+                return{
+                    ...old,
+                    [key]:value
+                }
+            })
+        )
+    }
+    
+    let temp = {}
 
     const getFormData = (e) => {
         e.preventDefault();
@@ -18,7 +43,6 @@ function Registration() {
         // console.log(formData.get("Profile"));
         // console.log(formData.get("Mobilenumber"));
 
-        let temp = {}
 
         for (let data of formData.entries()) {
             // console.log(data);
@@ -36,6 +60,12 @@ function Registration() {
             console.log(temp)
 
         }
+    }
+
+    function insertData(e){
+        e.preventDefault();
+        // alert("Insert Data");
+        getFormData(e);
 
         return (
             setAllData((old) => {
@@ -44,7 +74,40 @@ function Registration() {
                     temp
                 ]
             }),
-            setShow(false)
+            setShow(false),
+
+            setInput({
+                Fullname: "",
+                Email: "",
+                Password:"",
+                Mobilenumber: ""
+            })
+        )
+    }
+
+    function updateData(e){
+        e.preventDefault();
+        // alert("Update data");
+        getFormData(e);
+        // console.log(temp)
+        const tempData= [...allData];
+        tempData[index]=temp;
+        console.log(tempData)
+
+        return(
+            setShow(false),
+            setAllData(tempData)
+        )
+
+    }
+
+    function editData(item){
+        // console.log(item);
+        return(
+            setShow(true),
+            setInput(item),
+            setButtonState(false),
+            setIndex(item.index)
         )
     }
 
@@ -58,6 +121,20 @@ function Registration() {
 
     }
 
+    function addButton(){
+        return(
+            setShow(true),
+            setInput({
+                Fullname: "",
+                Email: "",
+                Password:"",
+                Mobilenumber: ""
+            }),
+            setButtonState(true)
+
+        )
+    }
+
     function Tr({ item }) {
         return (
             <>
@@ -69,7 +146,7 @@ function Registration() {
                     <td>{item.Mobilenumber}</td>
                     <td><img src={item.Profile} alt='' width={50} height={50} className='rounded-circle'></img></td>
                     <td>
-                        <Button className='me-2'>
+                        <Button className='me-2' onClick={() => editData(item)}>
                             <i className="fa fa-edit"></i>
                         </Button>
 
@@ -86,7 +163,8 @@ function Registration() {
         <>
             <h1 className='text-center'>Registration Details</h1>
 
-            <Button className='position-absolute bottom-0 end-0 me-3 mb-3 rounded-circle' onClick={() => setShow(true)}>
+            <Button className='position-absolute bottom-0 end-0 me-3 mb-3 rounded-circle' 
+            onClick={addButton}>
                 <i className='fa fa-plus'></i>
             </Button>
 
@@ -96,25 +174,25 @@ function Registration() {
                 </Modal.Header>
 
                 <Modal.Body>
-                    <Form onSubmit={getFormData}>
+                    <Form onSubmit={buttonState ? insertData : updateData  }>
                         <Form.Group>
                             <Form.Label>Full Name</Form.Label>
-                            <Form.Control type='text' name='Fullname' placeholder='Enter Your Full Name' />
+                            <Form.Control type='text' name='Fullname' placeholder='Enter Your Full Name' onChange={getInputData} value={input.Fullname}/>
                         </Form.Group>
 
                         <Form.Group>
                             <Form.Label>Email</Form.Label>
-                            <Form.Control type='email' name='Email' placeholder='Enter Your Email' />
+                            <Form.Control type='email' name='Email' placeholder='Enter Your Email' onChange={getInputData}  value={input.Email}/>
                         </Form.Group>
 
                         <Form.Group>
                             <Form.Label>Password</Form.Label>
-                            <Form.Control type='password' name='Password' placeholder='Enter Your Password' />
+                            <Form.Control type='password' name='Password' placeholder='Enter Your Password' onChange={getInputData}  value={input.Password}/>
                         </Form.Group>
 
                         <Form.Group>
                             <Form.Label>Mobile Number</Form.Label>
-                            <Form.Control type='tel' name='Mobilenumber' placeholder='Enter Your Mobile Number' />
+                            <Form.Control type='tel' name='Mobilenumber' placeholder='Enter Your Mobile Number' onChange={getInputData}  value={input.Mobilenumber}/>
                         </Form.Group>
 
                         <Form.Group>
@@ -122,16 +200,20 @@ function Registration() {
                             <Form.Control type='file' name='Profile' placeholder='Insert Your Image' />
                         </Form.Group>
 
-                        <br></br>
+                        <Form.Group className='mt-3'>
+                            {
+                                buttonState ? <Button type='submit' variant='primary' className='me-2'>Submit</Button> :
+                                <Button type='submit' variant='info' className='me-2'>Update</Button>
 
-                        <Button type='submit' variant='primary' className='me-2'>Submit</Button>
-                        <Button type='reset' variant='danger'>Cancel</Button>
+                            }
+                            <Button type='reset' variant='danger' onClick={()=>setShow(false)}>Cancel</Button>
+                        </Form.Group>
                     </Form>
                 </Modal.Body>
 
             </Modal>
 
-            {/* <p>{JSON.stringify(allData)}</p> */}
+            {/* <p>{JSON.stringify(input)}</p>  */}
             <Container>
                 <Table striped bordered hover size="sm">
                     <thead>
